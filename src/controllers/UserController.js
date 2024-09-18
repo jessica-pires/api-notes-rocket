@@ -35,50 +35,6 @@ class UserController {
         }
     }
 
-    async login(request, response) {
-        const { email, password } = request.body;
-    
-        try {
-            // Verificar se o usuário existe
-            const user = await connection("users").where({ email }).first();
-    
-            if (!user) {
-                throw new AppError("E-mail e/ou senha incorreta", 401);
-            }
-    
-            // Verificar a correspondência da senha
-            const passwordMatched = await compare(password, user.password);
-            if (!passwordMatched) {
-                throw new AppError("E-mail e/ou senha incorreta", 401);
-            }
-    
-            // Gerar token JWT
-            const { secret, expiresIn } = authConfig.jwt;
-            const token = sign({}, secret, {
-                subject: String(user.id),
-                expiresIn
-            });
-    
-            // Retornar resposta com o usuário e token
-            return response.json({ user, token });
-    
-        } catch (error) {
-            console.error('Error in login method:', error); // Adicione logs para rastreamento
-            if (error instanceof AppError) {
-                return response.status(error.statusCode).json({
-                    status: "error",
-                    message: error.message
-                });
-            }
-            // Tratar outros erros
-            return response.status(500).json({
-                status: "error",
-                message: "Internal server error"
-            });
-        }
-    }
-    
-
     async update(request, response) {
 
         try{
